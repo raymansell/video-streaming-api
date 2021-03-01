@@ -1,12 +1,14 @@
-const express = require('express');
-const router = express.Router();
-const { moviesMock } = require('../utils/mocks/movies');
+const router = require('express').Router();
+const MoviesService = require('../services/movies');
+
+const movieService = new MoviesService();
 
 router
   .route('/')
   .get(async (req, res, next) => {
+    const { tags } = req.query;
     try {
-      const movies = await Promise.resolve(moviesMock);
+      const movies = await movieService.getMovies({ tags });
       res.status(200).json({
         data: movies,
         message: 'movies listed',
@@ -16,8 +18,9 @@ router
     }
   })
   .post(async (req, res, next) => {
+    const { body: movie } = req;
     try {
-      const createdMovieId = await Promise.resolve(moviesMock[0].id);
+      const createdMovieId = await movieService.createMovie({ movie });
       res.status(201).json({
         data: createdMovieId,
         message: 'movie created',
@@ -30,8 +33,9 @@ router
 router
   .route('/:movieId')
   .get(async (req, res, next) => {
+    const { movieId } = req.params;
     try {
-      const movie = await Promise.resolve(moviesMock[0]);
+      const movie = await movieService.getMovie({ movieId });
       res.status(200).json({
         data: movie,
         message: 'movie retrieved',
@@ -41,8 +45,10 @@ router
     }
   })
   .put(async (req, res, next) => {
+    const { movieId } = req.params;
+    const { body: movie } = req;
     try {
-      const updatedMovieId = await Promise.resolve(moviesMock[0].id);
+      const updatedMovieId = await movieService.updateMovie({ movieId, movie });
       res.status(200).json({
         data: updatedMovieId,
         message: 'movie updated',
@@ -52,8 +58,9 @@ router
     }
   })
   .delete(async (req, res, next) => {
+    const { movieId } = req.params;
     try {
-      const deletedMovieId = await Promise.resolve(moviesMock[0].id);
+      const deletedMovieId = await movieService.deleteMovie({ movieId });
       res.status(200).json({
         data: deletedMovieId,
         message: 'movie deleted',
